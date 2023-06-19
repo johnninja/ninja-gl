@@ -2,7 +2,7 @@ type Context = WebGL2RenderingContext
 type Shader = WebGLShader
 type Program = WebGLProgram
 
-class Gl {
+class NinjaGl {
     constructor(private readonly gl: Context) {
         this.gl = gl
     }
@@ -123,17 +123,17 @@ function createIbo(gl: Context, data: number[]): WebGLBuffer {
     return ibo!
 }
 
-function createVao(gl: Context, vbo: WebGLBuffer, ibo: WebGLBuffer): WebGLVertexArrayObject {
-    const vao = gl.createVertexArray()
-    gl.bindVertexArray(vao)
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo)
-    gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-    gl.enableVertexAttribArray(0)
-    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0)
-    gl.bindVertexArray(null)
+// function createVao(gl: Context, vbo: WebGLBuffer, ibo: WebGLBuffer): WebGLVertexArrayObject {
+//     const vao = gl.createVertexArray()
+//     gl.bindVertexArray(vao)
+//     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo)
+//     gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+//     gl.enableVertexAttribArray(0)
+//     gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0)
+//     gl.bindVertexArray(null)
 
-    return vao!
-}
+//     return vao!
+// }
 
 function createTexture(gl: Context, source: HTMLImageElement): WebGLTexture | null {
     const texture = gl.createTexture()
@@ -145,24 +145,4 @@ function createTexture(gl: Context, source: HTMLImageElement): WebGLTexture | nu
     return texture
 }
 
-function createFramebuffer(gl: Context, width: number, height: number): WebGLFramebuffer | null {
-    const framebuffer = gl.createFramebuffer()
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer)
-
-    const depthRenderbuffer = gl.createRenderbuffer()
-    gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderbuffer)
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height)
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderbuffer)
-
-    const texture = gl.createTexture()
-    gl.bindTexture(gl.TEXTURE_2D, texture)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.FLOAT, null)
-    gl.generateMipmap(gl.TEXTURE_2D)
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0)
-
-    gl.bindTexture(gl.TEXTURE_2D, null)
-    gl.bindRenderbuffer(gl.RENDERBUFFER, null)
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
-
-    return framebuffer
-}
+export default NinjaGl
