@@ -35,7 +35,7 @@ const ibo = ninjaGl.createIbo([
 ])
 const vao = ninjaGl.createVao(vbo, ibo)
 
-ninjaGl.setAttribute(program, 'position', vbo, 0)
+ninjaGl.setAttribute(program, 'position', vbo, 3, 0)
 ninjaGl.setUniform(program, 'color', [1.0, 0.0, 0.0, 1.0], gl.FLOAT_VEC4)
 
 ninjaGl.clear()

@@ -55,11 +55,11 @@ class NinjaGl {
         const location = this.gl.getUniformLocation(program, name)
         this.gl.uniformMatrix4fv(location, false, value)
     }
-    setAttribute(program: Program, name: string, vbo: WebGLBuffer, stride: number): void {
+    setAttribute(program: Program, name: string, vbo: WebGLBuffer, size: number, stride: number): void {
         const location = this.gl.getAttribLocation(program, name)
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vbo)
         this.gl.enableVertexAttribArray(location)
-        this.gl.vertexAttribPointer(location, 3, this.gl.FLOAT, false, stride, 0)
+        this.gl.vertexAttribPointer(location, size, this.gl.FLOAT, false, stride, 0)
     }
     setTexture(program: Program, name: string, texture: WebGLTexture, index: number, params: { key: number, value: number}[]): void {
         const location = this.gl.getUniformLocation(program, name)
