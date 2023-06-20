@@ -28,9 +28,28 @@ class NinjaGl {
         this.gl.bindVertexArray(vao)
         this.gl.drawElements(this.gl.TRIANGLES, count, this.gl.UNSIGNED_SHORT, 0)
     }
-    setUniform(program: Program, name: string, value: number): void {
+    setUniform(program: Program, name: string, value: number | number[], type: number): void {
         const location = this.gl.getUniformLocation(program, name)
-        this.gl.uniform1f(location, value)
+        switch (type) {
+            case this.gl.FLOAT:
+                this.gl.uniform1f(location, value as number)
+                break
+            case this.gl.FLOAT_VEC2:
+                this.gl.uniform2fv(location, value as number[])
+                break
+            case this.gl.FLOAT_VEC3:
+                this.gl.uniform3fv(location, value as number[])
+                break
+            case this.gl.FLOAT_VEC4:
+                this.gl.uniform4fv(location, value as number[])
+                break
+            case this.gl.FLOAT_MAT4:
+                this.gl.uniformMatrix4fv(location, false, value as number[])
+                break
+            default:
+                throw new Error('Invalid uniform type')
+        }
+        
     }
     setUniformMatrix(program: Program, name: string, value: number[]): void {
         const location = this.gl.getUniformLocation(program, name)
@@ -66,6 +85,9 @@ class NinjaGl {
     createIbo(data: number[]): WebGLBuffer {
         return createIbo(this.gl, data)
     }
+    createVao(vbo: WebGLBuffer, ibo: WebGLBuffer): WebGLVertexArrayObject {
+        return createVao(this.gl, vbo, ibo)
+    }
 }
 
 function createShader(gl: Context, type: number, source: string): Shader | null {
@@ -79,7 +101,7 @@ function createShader(gl: Context, type: number, source: string): Shader | null 
     gl.compileShader(shader)
 
     if (gl.getShaderParameter(shader, gl.COMPILE_STATUS) === false) {
-        console.error(gl.getShaderInfoLog(shader))
+        console.error('Shader Error: ', gl.getShaderInfoLog(shader))
     }
 
     return shader
@@ -94,12 +116,12 @@ function createProgram(gl: Context, vs: Shader, fs: Shader): Program | null {
 
     gl.attachShader(program, vs)
     gl.attachShader(program, fs)
+    gl.linkProgram(program)
 
     if (gl.getProgramParameter(program, gl.LINK_STATUS) === false) {
-        console.error(gl.getProgramInfoLog(program))
+        console.error('Program Error: ', gl.getProgramInfoLog(program))
     }
 
-    gl.linkProgram(program)
     gl.useProgram(program)
 
     return program
@@ -123,17 +145,17 @@ function createIbo(gl: Context, data: number[]): WebGLBuffer {
     return ibo!
 }
 
-// function createVao(gl: Context, vbo: WebGLBuffer, ibo: WebGLBuffer): WebGLVertexArrayObject {
-//     const vao = gl.createVertexArray()
-//     gl.bindVertexArray(vao)
-//     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo)
-//     gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-//     gl.enableVertexAttribArray(0)
-//     gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0)
-//     gl.bindVertexArray(null)
+function createVao(gl: Context, vbo: WebGLBuffer, ibo: WebGLBuffer): WebGLVertexArrayObject {
+    const vao = gl.createVertexArray()
+    gl.bindVertexArray(vao)
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo)
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
+    gl.enableVertexAttribArray(0)
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0)
+    gl.bindVertexArray(null)
 
-//     return vao!
-// }
+    return vao!
+}
 
 function createTexture(gl: Context, source: HTMLImageElement): WebGLTexture | null {
     const texture = gl.createTexture()
@@ -144,5 +166,44 @@ function createTexture(gl: Context, source: HTMLImageElement): WebGLTexture | nu
 
     return texture
 }
+
+const canvas = document.getElementById('canvas') as HTMLCanvasElement
+const gl = canvas.getContext('webgl2')!
+const ninjaGl = new NinjaGl(gl)
+const program = ninjaGl.create(
+    `
+    attribute vec3 position;
+    void main(void) {
+        gl_Position = vec4(position, 1.0);
+    }
+    `,
+    `
+    precision mediump float;
+    uniform vec4 color;
+    void main(void) {
+        gl_FragColor = color;
+    }
+    `
+)!
+
+// draw rectangle
+const vbo = ninjaGl.createVbo([
+    1.0, 1.0, 0.0,
+    -1.0, 1.0, 0.0,
+    -1.0, -1.0, 0.0,
+    1.0, -1.0, 0.0
+])
+const ibo = ninjaGl.createIbo([
+    0, 1, 2, 
+    0, 2, 3
+])
+const vao = ninjaGl.createVao(vbo, ibo)
+
+ninjaGl.setAttribute(program, 'position', vbo, 0)
+ninjaGl.setUniform(program, 'color', [1.0, 0.0, 0.0, 1.0], gl.FLOAT_VEC4)
+
+ninjaGl.clear()
+ninjaGl.clearColor(0.0, 0.0, 0.0, 1.0)
+ninjaGl.draw(program, vao, 6)
 
 export default NinjaGl

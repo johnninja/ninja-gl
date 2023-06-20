@@ -1,10 +1,10 @@
 {
   "name": "@ninja_zhw/ninja-gl",
-  "version": "0.0.0",
+  "version": "0.0.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build && tsc -p tsconfig.build.json",
     "preview": "vite preview"
   },
   "devDependencies": {
@@ -12,7 +12,7 @@
     "vite": "^4.3.9"
   },
   "description": "self-use webgl tools",
-  "main": "dist/ninja-gl.js",
+  "main": "lib/ninja-gl.js",
   "dependencies": {
     "esbuild": "^0.17.19",
     "fsevents": "^2.3.2",
@@ -39,5 +39,6 @@
   "bugs": {
     "url": "https://github.com/johnninja/ninja-gl/issues"
   },
-  "homepage": "https://github.com/johnninja/ninja-gl#readme"
+  "homepage": "https://github.com/johnninja/ninja-gl#readme",
+  "types": "lib/types/main.d.ts"
 }
